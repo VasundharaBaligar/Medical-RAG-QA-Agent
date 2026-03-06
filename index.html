@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical Q&A Agent</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #f0f4f8;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        header h1 {
+            font-size: 2rem;
+            color: #1a202c;
+        }
+        header p {
+            color: #718096;
+            margin-top: 8px;
+        }
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            margin-bottom: 24px;
+        }
+        textarea {
+            width: 100%;
+            padding: 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 1rem;
+            resize: none;
+            height: 100px;
+            outline: none;
+            transition: border 0.2s;
+            font-family: inherit;
+        }
+        textarea:focus { border-color: #667eea; }
+        button {
+            width: 100%;
+            margin-top: 16px;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        button:hover { opacity: 0.9; }
+        button:disabled { opacity: 0.6; cursor: not-allowed; }
+        .examples {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 16px;
+        }
+        .example-btn {
+            padding: 8px 16px;
+            background: #edf2ff;
+            color: #667eea;
+            border: none;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            width: auto;
+            margin: 0;
+            font-weight: 500;
+        }
+        .example-btn:hover { background: #667eea; color: white; }
+        .answer-box {
+            display: none;
+            background: #f7fafc;
+            border-left: 4px solid #667eea;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 16px;
+            line-height: 1.7;
+            color: #2d3748;
+            font-size: 1rem;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            color: #667eea;
+            margin-top: 16px;
+            font-weight: 500;
+        }
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #e2e8f0;
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+        }
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #667eea;
+        }
+        .stat-label {
+            font-size: 0.8rem;
+            color: #718096;
+            margin-top: 4px;
+        }
+        footer {
+            text-align: center;
+            color: #a0aec0;
+            font-size: 0.85rem;
+            margin-top: 24px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🏥 Medical Q&A Agent</h1>
+            <p>Powered by RAG + TinyLlama + FAISS | Built by Vasundhara Baligar</p>
+        </header>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number">500+</div>
+                <div class="stat-label">Medical Q&A Pairs</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">1,508</div>
+                <div class="stat-label">FAISS Vectors</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="query-count">0</div>
+                <div class="stat-label">Queries Asked</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <textarea id="question" placeholder="e.g. What are the symptoms of diabetes?"></textarea>
+            <button onclick="askQuestion()" id="ask-btn">Ask 🔍</button>
+            <div class="loading" id="loading">
+                <span class="spinner"></span> Searching medical database...
+            </div>
+            <div class="answer-box" id="answer-box"></div>
+            <div class="examples">
+                <button class="example-btn" onclick="setQuestion('What antibiotic treats UTI in pregnant women?')">UTI in pregnancy</button>
+                <button class="example-btn" onclick="setQuestion('What are the symptoms of diabetes?')">Diabetes symptoms</button>
+                <button class="example-btn" onclick="setQuestion('What is the treatment for hypertension?')">Hypertension treatment</button>
+                <button class="example-btn" onclick="setQuestion('What causes anemia?')">Causes of anemia</button>
+            </div>
+        </div>
+
+        <footer>
+            Built with LangChain · FAISS · TinyLlama · FastAPI · JavaScript
+        </footer>
+    </div>
+
+    <script>
+        // ⚠️ REPLACE THIS with your ngrok URL
+        const API_URL = "https://unentered-noreen-biennially.ngrok-free.dev";
+        let queryCount = 0;
+
+        function setQuestion(q) {
+            document.getElementById("question").value = q;
+        }
+
+        async function askQuestion() {
+            const question = document.getElementById("question").value.trim();
+            if (!question) return alert("Please enter a question!");
+
+            const btn = document.getElementById("ask-btn");
+            const loading = document.getElementById("loading");
+            const answerBox = document.getElementById("answer-box");
+
+            // Show loading
+            btn.disabled = true;
+            btn.textContent = "Thinking...";
+            loading.style.display = "block";
+            answerBox.style.display = "none";
+
+            try {
+                const response = await fetch(`${API_URL}/ask`, {
+                    method: "POST",
+                    headers: { 
+                        "Content-Type": "application/json",
+                        "ngrok-skip-browser-warning": "true"
+                    },
+                    body: JSON.stringify({ question: question })
+                });
+                const data = await response.json();
+
+                // Show answer
+                answerBox.textContent = data.answer;
+                answerBox.style.display = "block";
+
+                // Update query count
+                queryCount++;
+                document.getElementById("query-count").textContent = queryCount;
+
+            } catch (error) {
+                answerBox.textContent = "Error connecting to the API. Make sure the backend is running!";
+                answerBox.style.display = "block";
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "Ask 🔍";
+                loading.style.display = "none";
+            }
+        }
+
+        // Allow Enter key to submit
+        document.getElementById("question").addEventListener("keypress", function(e) {
+            if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                askQuestion();
+            }
+        });
+    </script>
+</body>
+</html>
