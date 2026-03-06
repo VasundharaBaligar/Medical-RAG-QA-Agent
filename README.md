@@ -20,6 +20,8 @@ This project demonstrates:
 - LLM integration with LangChain
 - Interactive web deployment with Gradio
 
+  Image.png
+
 ---
 
 ## 🏗️ Architecture
