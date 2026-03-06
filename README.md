@@ -83,14 +83,6 @@ pip install -r requirements.txt
 jupyter notebook Medical-RAG-QA-Agent.ipynb
 ```
 
----
-
-## 💡 Example Questions
-
-- *"What antibiotic treats UTI in pregnant women?"*
-- *"What are the symptoms of diabetes?"*
-- *"What is the first-line treatment for hypertension?"*
-- *"What causes anemia?"*
 
 ---
 
@@ -99,35 +91,9 @@ jupyter notebook Medical-RAG-QA-Agent.ipynb
 ```
 medical-rag-qa-agent/
 │
-├── Medical-RAG-QA-Agent.ipynb   # Main notebook
+├── Medical-RAG-QA-Agent.ipynb (request for file)   # Main notebook
 ├── requirements.txt              # Dependencies
 └── README.md                     # This file
 ```
 
----
 
-## 🔑 Key Concepts Demonstrated
-
-- **Retrieval-Augmented Generation (RAG):** Grounds LLM answers in real data
-- **Semantic Search:** FAISS indexes 1,508 medical text chunks for fast similarity search
-- **Embedding Model:** sentence-transformers converts text to dense vectors
-- **LangChain LCEL:** Modern pipeline chaining for RAG
-- **Gradio Deployment:** One-click shareable web UI
-
----
-
-## 🔮 Future Work
-
-- Fine-tune the embedding model on medical terminology
-- Add PDF upload feature for custom medical documents
-- Integrate larger LLM (Mistral-7B) for better answer quality
-- Add JavaScript frontend for DS4CG-style dashboard
-- Deploy permanently on Hugging Face Spaces
-
----
-
-## 📬 Contact
-
-**Vasundhara Vishwanath Baligar**
-- Email: vbaligar@umass.edu
-- [LinkedIn](https://linkedin.com) | [GitHub](https://github.com) | [Portfolio](https://portfolio.com)
