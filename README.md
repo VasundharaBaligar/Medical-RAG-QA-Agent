@@ -20,7 +20,13 @@ This project demonstrates:
 - LLM integration with LangChain
 - Interactive web deployment with Gradio
 
-![Demo](Image.png)
+### Gradio Interface
+
+![Gradio Demo](Image.png)
+
+### JavaScript Frontend
+
+![JS Demo](image.png)
 
 
 
