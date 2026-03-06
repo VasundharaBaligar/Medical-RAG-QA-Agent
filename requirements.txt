@@ -1,0 +1,13 @@
+langchain
+langchain-community
+langchain-huggingface
+langchain-core
+langchain-text-splitters
+faiss-cpu
+sentence-transformers
+gradio
+pypdf
+huggingface_hub
+transformers
+datasets
+torch
